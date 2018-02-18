@@ -6,36 +6,38 @@ import * as BooksAPI from './BooksAPI'
 
 class SearchBooks extends Component {
   static propTypes = {
+    books: PropTypes.array.isRequired,
     onAddBook: PropTypes.func.isRequired
   }
 
   state = {
     query: '',
-    books: []
+    queryBooks: []
   }
 
-  updateQuery = (query) => {
+  updateQuery = (query, books) => {
     this.setState({ query })
     if (query) {
-      BooksAPI.search(query).then(books => {
-        if (books.error) {
-          this.setState({ books: [] })
+      BooksAPI.search(query).then(queryBooks => {
+        if (queryBooks && !queryBooks.error) {
+          queryBooks.map(qb => {
+            qb.shelf = 'none'
+            books.filter(b => b.id === qb.id)
+                 .map(b => qb.shelf = b.shelf)
+          })
+          this.setState({ queryBooks })
           return
         }
-        if (books) {
-          this.setState({ books })
-        } else {
-          this.setState({ books: [] })
-        }
+        this.setState({ queryBooks: [] })
       })
     } else {
-      this.setState({ books: [] })
+      this.setState({ queryBooks: [] })
     }
   }
 
   render(props) {
-    const { onAddBook } = this.props
-    const { query, books } = this.state
+    const { books, onAddBook } = this.props
+    const { query, queryBooks } = this.state
 
     return (
       <div className='search-books'>
@@ -46,12 +48,12 @@ class SearchBooks extends Component {
             <input type='text'
                    placeholder='Search by title or author'
                    value={query}
-                   onChange={(event) => this.updateQuery(event.target.value)}/>
+                   onChange={(event) => this.updateQuery(event.target.value, books)}/>
           </div>
         </div>
         <div className='search-books-results'>
           <ol className='books-grid'>
-            {books.map((book) => (
+            {queryBooks.map((book) => (
               <li key={book.id}>
                 <div className='book'>
                   <div className='book-top'>

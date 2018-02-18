@@ -22,7 +22,8 @@ class ListBooks extends Component {
               <h2 className='bookshelf-title'>Currently Reading</h2>
               <div className='bookshelf-books'>
                 <ol className='books-grid'>
-                  {books.filter(book => book.shelf === 'currentlyReading').map((book) => (
+                  {books.filter(book => book.shelf === 'currentlyReading')
+                             .map((book) => (
                     <li key={book.id}>
                       <div className='book'>
                         <div className='book-top'>
