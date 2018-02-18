@@ -1,31 +1,61 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react'
+import { Route } from 'react-router-dom'
 
-class App extends Component {
+import * as BooksAPI from './BooksAPI'
+import ListBooks from './ListBooks'
+import SearchBooks from './SearchBooks'
+
+import './App.css'
+
+class BooksApp extends Component {
+  state = {
+    books: []
+  }
+
+  componentDidMount() {
+    this.updateAllBooks()
+  }
+
+  updateAllBooks() {
+    BooksAPI.getAll().then((books) => {
+      this.setState({ books })
+    })
+  }
+
+  addBook = (book, shelf) => {
+    book.shelf = shelf
+    this.setState((state) => ({
+      books: state.books.concat(book)
+    }))
+    BooksAPI.update(book, shelf)
+  }
+
+  updateBook = (book, shelf) => {
+    this.setState((state) => ({
+      books: state.books
+          .map(b => {
+            if (b.id === book.id) {
+              b.shelf = shelf
+            }
+            return b
+          })
+    }))
+    BooksAPI.update(book, shelf)
+  }
+
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-        </header>
-        <h1>Read</h1>
-        <ul>
-          <li>
-            <h2>The Meditations</h2>
-            <img src="https://images-na.ssl-images-amazon.com/images/I/415jqPZ74ZL._SX319_BO1,204,203,200_.jpg"/>
-          </li>
-        </ul>
-        <h1>To read</h1>
-        <ul>
-          <li>
-            <h2>Letters from a Stoic</h2>
-            <img src="https://images-na.ssl-images-amazon.com/images/I/51mt31ITPvL._SY346_.jpg"/>
-          </li>
-        </ul>
+      <div className='app'>
+        <Route exact path='/' render={() => (
+          <ListBooks onUpdateBook={this.updateBook}
+                     books={this.state.books} />
+        )}/>
+        <Route path='/search' render={() => (
+          <SearchBooks onAddBook={this.addBook} />
+        )}/>
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default BooksApp;
