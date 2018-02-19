@@ -20,7 +20,7 @@ class SearchBooks extends Component {
     if (query) {
       BooksAPI.search(query).then(queryBooks => {
         if (queryBooks && !queryBooks.error) {
-          queryBooks.map(qb => {
+          queryBooks.forEach(qb => {
             qb.shelf = 'none'
             books.filter(b => b.id === qb.id)
                  .map(b => qb.shelf = b.shelf)
